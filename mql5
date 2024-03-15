@@ -1,0 +1,93 @@
+
+//+------------------------------------------------------------------+
+//|                                         Arrow Scalper            |
+//|                                           Developer's Site: forexroboteasy.com |
+//|                                           Developed by: Forex Robot Easy Team |
+//+------------------------------------------------------------------+
+
+// Define input parameters
+input int H4Period = PERIOD_H4;
+input int M15Period = PERIOD_M15;
+input int H1Period = PERIOD_H1;
+input int Volume = 1;
+
+// Define global variables
+int trendH4, trendM15, trendH1;
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Set H4 timeframe
+    ChartSetInteger(0, CHART_PERIOD, H4Period);
+    
+    // Attach custom indicator to H4 chart
+    if (!IndicatorSetString(0, INDICATOR_SHORTNAME, 'Trend_Indicator_H4'))
+        return INIT_FAILED;
+    
+    if (!IndicatorSetInteger(0, INDICATOR_DIGITS, 5))
+        return INIT_FAILED;
+    
+    // Set M15 timeframe
+    ChartSetInteger(0, CHART_PERIOD, M15Period);
+    
+    // Attach custom indicator to M15 chart
+    if (!IndicatorSetString(0, INDICATOR_SHORTNAME, 'Trend_Indicator_M15'))
+        return INIT_FAILED;
+    
+    if (!IndicatorSetInteger(0, INDICATOR_DIGITS, 5))
+        return INIT_FAILED;
+    
+    // Set H1 timeframe
+    ChartSetInteger(0, CHART_PERIOD, H1Period);
+    
+    // Attach custom indicator to H1 chart
+    if (!IndicatorSetString(0, INDICATOR_SHORTNAME, 'Trend_Indicator_H1'))
+        return INIT_FAILED;
+    
+    if (!IndicatorSetInteger(0, INDICATOR_DIGITS, 5))
+        return INIT_FAILED;
+    
+    return INIT_SUCCEEDED;
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor start function                                     |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+    // Check H4 trend
+    ChartSetInteger(0, CHART_PERIOD, H4Period);
+    trendH4 = iCustom(NULL, 0, 'Trend_Indicator_H4', 0);
+    
+    // Check M15 trend
+    ChartSetInteger(0, CHART_PERIOD, M15Period);
+    trendM15 = iCustom(NULL, 0, 'Trend_Indicator_M15', 0);
+    
+    // Check H1 trend
+    ChartSetInteger(0, CHART_PERIOD, H1Period);
+    trendH1 = iCustom(NULL, 0, 'Trend_Indicator_H1', 0);
+    
+    // Check for uptrend on all timeframes
+    if (trendH4 > 0 && trendM15 > 0 && trendH1 > 0)
+    {
+        // Open a buy order
+        OrderSend(Symbol(), OP_BUY, Volume, Ask, 0, 0, 0, 'Buy Order', MagicNumber);
+    }
+    // Check for downtrend on all timeframes
+    else if (trendH4 < 0 && trendM15 < 0 && trendH1 < 0)
+    {
+        // Open a sell order
+        OrderSend(Symbol(), OP_SELL, Volume, Bid, 0, 0, 0, 'Sell Order', MagicNumber);
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator cleanup function                                |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Remove custom indicator from chart
+    ChartIndicatorDelete(0, 0);
+}
